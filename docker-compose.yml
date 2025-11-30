@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  ai-interior-designer:
+    build: .
+    container_name: room-decorator-api
+    ports:
+      - "8000:8000"
+    environment:
+      # OpenAI API
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      
+      # AWS S3 Configuration
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_REGION=${AWS_REGION}
+      
+      # Replicate API (for advanced inpainting)
+      - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN}
+      
+      # Product Database API
+      - PRODUCT_API_URL=http://206.162.244.175:5008/api/v1/products
+      
+      # Optional: Pexels API
+      - PEXELS_API_KEY=${PEXELS_API_KEY}
+    volumes:
+      # Mount local code for development (remove in production)
+      - .:/app
+      # Mount temp directory
+      - /tmp/uploads:/tmp/uploads
+    restart: unless-stopped
+    networks:
+      - interior-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  interior-network:
+    driver: bridge
+
+# Optional: Add Redis for session storage in production
+# redis:
+#   image: redis:7-alpine
+#   container_name: room-decorator-redis
+#   ports:
+#     - "6379:6379"
+#   volumes:
+#     - redis-data:/data
+#   networks:
+#     - interior-network
+#   restart: unless-stopped
+
+# volumes:
+#   redis-data:
