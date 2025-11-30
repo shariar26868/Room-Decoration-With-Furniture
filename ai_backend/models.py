@@ -26,6 +26,9 @@ class UserSession:
         self.max_price: Optional[float] = None
         self.search_results: List[Any] = []
         self.generated_images: List[str] = []
+        
+        # ✅ NEW: Decorative items (optional)
+        self.decorative_items: List[Dict] = []
 
 
 # ==================== REQUESTS ====================
@@ -94,3 +97,36 @@ class ImageGenerationResponse(BaseModel):
     prompt_used: str
     generation_time_seconds: float
     message: str
+
+
+# ==================== ✅ NEW: DECORATIVE ITEMS ====================
+class DecorativeItemUpload(BaseModel):
+    """Upload custom decorative item"""
+    session_id: str
+    item_name: str = Field(..., description="Name of item (e.g., 'Wall Clock', 'Lamp', 'Painting')")
+    placement_hint: Optional[str] = Field(None, description="Where to place (e.g., 'on wall', 'on table', 'corner')")
+
+
+class DecorativeItemResponse(BaseModel):
+    """Response after uploading decorative item"""
+    success: bool
+    item_id: str
+    item_name: str
+    image_url: str
+    placement_hint: Optional[str]
+    message: str
+
+
+class DecorativeItemsList(BaseModel):
+    """List of decorative items"""
+    success: bool
+    session_id: str
+    items: List[Dict]
+    count: int
+    message: str
+
+
+class RemoveDecorativeItemRequest(BaseModel):
+    """Remove a decorative item"""
+    session_id: str
+    item_id: str

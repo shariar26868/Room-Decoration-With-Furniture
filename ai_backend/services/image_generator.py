@@ -1,19 +1,15 @@
 """
 Image Generator Service
 =======================
-Generate room designs using DALL-E 3
+Generate room designs using FAL.ai SeeDream
 """
 
 import logging
-import requests
-import tempfile
-from openai import OpenAI
 from typing import List
 from ai_backend.models import FurnitureItem
-from ai_backend.config import OPENAI_API_KEY, DALLE_MODEL, DALLE_SIZE, DALLE_QUALITY
+from ai_backend.services.fal_compositor import fal_compositor
 
 logger = logging.getLogger(__name__)
-client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 def generate_room_design(
@@ -21,10 +17,11 @@ def generate_room_design(
     prompt: str,
     theme: str,
     room_type: str,
-    furniture_items: List[FurnitureItem]
+    furniture_items: List[FurnitureItem],
+    decorative_items: list = None
 ) -> str:
     """
-    Generate room design using DALL-E 3
+    Generate room design using FAL.ai SeeDream
     
     Args:
         room_image_url: Original room image URL
@@ -32,67 +29,35 @@ def generate_room_design(
         theme: Design theme
         room_type: Type of room
         furniture_items: Selected furniture items
+        decorative_items: Optional decorative items (not used with FAL.ai)
     
     Returns:
         Path to generated image file
     """
     
-    # Build furniture description
-    furniture_desc = ", ".join([
-        f"{item.name} (${item.price:.0f})"
-        for item in furniture_items[:3]  # Limit to 3 for token efficiency
-    ])
-    
-    # Build comprehensive DALL-E prompt
-    dalle_prompt = f"""Professional interior design photograph: {theme.replace('_', ' ').title()} style {room_type.lower()}.
-
-DESIGN REQUIREMENTS:
-- Style: {theme.replace('_', ' ')}
-- Room type: {room_type}
-- Furniture to include: {furniture_desc}
-- Placement: {prompt}
-
-VISUAL QUALITY:
-- Photorealistic, magazine-quality interior
-- Natural lighting with soft shadows
-- Professional color grading
-- Proper scale and perspective
-- Comfortable, livable space
-- Show furniture clearly and naturally placed
-
-Create a beautiful, functional room that looks like a real home."""
-
-    logger.info(f"🎨 Generating design with DALL-E 3")
+    logger.info(f"🎨 Generating design with {len(furniture_items)} furniture items")
     logger.info(f"   Theme: {theme}")
     logger.info(f"   Room: {room_type}")
-    logger.info(f"   Furniture: {len(furniture_items)} items")
+    logger.info(f"   Placement: {prompt}")
+    
+    # Log furniture items
+    for idx, item in enumerate(furniture_items, 1):
+        logger.info(f"   {idx}. {item.name} - ${item.price:.0f} from {item.website}")
     
     try:
-        # Generate with DALL-E 3
-        response = client.images.generate(
-            model=DALLE_MODEL,
-            prompt=dalle_prompt[:4000],  # DALL-E 3 max: 4000 chars
-            size=DALLE_SIZE,
-            quality=DALLE_QUALITY,
-            n=1
+        # Use FAL.ai compositor
+        generated_path = fal_compositor.compose_furniture_in_room(
+            room_image_url=room_image_url,
+            furniture_items=furniture_items,
+            placement_prompt=prompt,
+            room_type=room_type,
+            theme=theme
         )
         
-        image_url = response.data[0].url
-        logger.info(f"✅ DALL-E 3 generated image")
+        logger.info(f"✅ Room design generated successfully with FAL.ai")
         
-        # Download generated image
-        img_response = requests.get(image_url, timeout=60)
-        img_response.raise_for_status()
-        
-        # Save to temp file
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp:
-            temp.write(img_response.content)
-            temp_path = temp.name
-        
-        logger.info(f"📥 Downloaded to: {temp_path}")
-        
-        return temp_path
+        return generated_path
         
     except Exception as e:
-        logger.error(f"❌ DALL-E 3 generation failed: {e}")
+        logger.error(f"❌ Room design generation failed: {e}")
         raise Exception(f"Image generation failed: {str(e)}")

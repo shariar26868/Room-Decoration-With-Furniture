@@ -1,7 +1,11 @@
+
+
+
+
 """
 Image Generation API
 ====================
-Handle AI image generation with DALL-E 3
+Handle AI image generation with furniture and decorative items
 """
 
 from fastapi import APIRouter, HTTPException, Request
@@ -19,7 +23,7 @@ logger = logging.getLogger(__name__)
 @router.post("/generate", response_model=ImageGenerationResponse)
 async def generate_image(request: ImageGenerationRequest, req: Request):
     """
-    Step 8: Generate final room design image
+    Step 8: Generate final room design image with furniture and optional decorative items
     """
     session = user_sessions.get(request.session_id)
     if not session:
@@ -38,18 +42,24 @@ async def generate_image(request: ImageGenerationRequest, req: Request):
     if not selected_furniture:
         raise HTTPException(status_code=400, detail="No valid furniture selected")
     
+    # ✅ Get decorative items (optional)
+    decorative_items = getattr(session, 'decorative_items', [])
+    
     logger.info(f"🎨 Generating design with {len(selected_furniture)} furniture items")
+    if decorative_items:
+        logger.info(f"   + {len(decorative_items)} decorative items")
     
     start_time = time.time()
     
     try:
-        # Generate image with DALL-E 3
+        # Generate image with furniture and decorative items
         generated_path = generate_room_design(
             room_image_url=session.room_image_url,
             prompt=request.prompt,
             theme=session.theme,
             room_type=session.room_type,
-            furniture_items=selected_furniture
+            furniture_items=selected_furniture,
+            decorative_items=decorative_items  # ✅ Pass decorative items
         )
         
         # Upload to S3
@@ -69,7 +79,7 @@ async def generate_image(request: ImageGenerationRequest, req: Request):
             furniture_items=selected_furniture,
             prompt_used=request.prompt,
             generation_time_seconds=generation_time,
-            message="Room design generated successfully"
+            message=f"Room design with {len(selected_furniture)} furniture + {len(decorative_items)} decorative items generated"
         )
         
     except Exception as e:

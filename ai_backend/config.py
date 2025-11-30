@@ -6,7 +6,7 @@ Configuration & Constants
 import os
 from typing import Dict, List
 from dotenv import load_dotenv
-
+REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 load_dotenv()
 
 # API Keys
@@ -15,7 +15,7 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_S3_BUCKET = os.getenv("AWS_S3_BUCKET")
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
-
+FAL_API_KEY = os.getenv("FAL_API_KEY")
 # Product Database
 PRODUCT_API_URL = "http://206.162.244.175:5008/api/v1/products"
 

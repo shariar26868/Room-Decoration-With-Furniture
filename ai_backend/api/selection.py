@@ -200,6 +200,11 @@
 #     }
 
 
+
+
+
+
+
 """
 Selection API
 =============
@@ -627,3 +632,6 @@ async def get_session_info(session_id: str):
         "search_results_count": len(session.search_results),
         "generated_images_count": len(session.generated_images)
     }
+
+
+
