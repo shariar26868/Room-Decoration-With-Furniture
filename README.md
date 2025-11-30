@@ -106,7 +106,6 @@ Room-Decoration-With-Furniture/
     │   ├── upload.py              # Room image upload
     │   ├── selection.py           # Room/theme/furniture selection
     │   ├── furniture.py           # Product search
-    │   ├── decorative.py          # Custom decorative items
     │   └── generation.py          # Image generation
     │
     └── services/                   # Business logic
@@ -114,7 +113,7 @@ Room-Decoration-With-Furniture/
         ├── product_service.py     # Product database
         ├── space_calculator.py    # AI space validation
         ├── furniture_search.py    # Product search logic
-        ├── image_compositor.py    # Image composition
+        ├── fal_compositor.py    # Image composition
         ├── image_generator.py     # Generation orchestration
         └── storage.py             # File storage utilities
 ```
