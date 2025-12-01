@@ -1,7 +1,3 @@
-
-
-
-
 """
 Image Generation API
 ====================
@@ -77,6 +73,7 @@ async def generate_image(request: ImageGenerationRequest, req: Request):
             generated_image_url=generated_url,
             original_image_url=session.room_image_url,
             furniture_items=selected_furniture,
+            room_type=session.room_type,  # ✅ Added room_type field
             prompt_used=request.prompt,
             generation_time_seconds=generation_time,
             message=f"Room design with {len(selected_furniture)} furniture + {len(decorative_items)} decorative items generated"
