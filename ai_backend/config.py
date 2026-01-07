@@ -17,7 +17,8 @@ AWS_S3_BUCKET = os.getenv("AWS_S3_BUCKET")
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 FAL_API_KEY = os.getenv("FAL_API_KEY")
 # Product Database
-PRODUCT_API_URL = "http://206.162.244.175:5008/api/v1/products"
+# PRODUCT_API_URL = "http://206.162.244.175:5008/api/v1/products"
+PRODUCT_API_URL = "http://72.60.126.182:5000/api/v1/products"
 
 # Themes with Websites
 THEMES: Dict[str, List[str]] = {
